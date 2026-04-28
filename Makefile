@@ -4,17 +4,10 @@ HOST_UID := $(shell id -u)
 HOST_GID := $(shell id -g)
 
 export PARANOID_MODE ?= true
-RANDOM_ID := $(shell openssl rand -hex 6 2>/dev/null || echo "default")
-export SECRET_TARGET_PATH = /run/secrets/gh_$(RANDOM_ID)
 
 setup:
-	mkdir -p .pi-data .secrets workspace src
-	chmod 700 .pi-data .secrets workspace
-	@chmod 600 .secrets/github_token.txt 2>/dev/null || true
-	touch .secrets/github_token.txt
-	chmod 600 .secrets/github_token.txt
-	@if [ -f .env ]; then grep "^GITHUB_TOKEN=" .env | cut -d '=' -f2- > .secrets/github_token.txt; fi
-	chmod 000 .secrets/github_token.txt
+	mkdir -p .pi-data src
+	chmod 700 .pi-data
 
 build: setup
 	docker compose build
