@@ -1,13 +1,13 @@
 services:
   pi-agent:
+    container_name: pi_coding_agent
     build:
       context: .
       dockerfile: Dockerfile
     image: local/pi-coding-agent:latest
-    container_name: pi_coding_agent
-    
     tty: true
     stdin_open: true
+    command: pi
 
     environment:
       - HOST_UID=${HOST_UID:-1000}
@@ -22,10 +22,6 @@ services:
       - GIT_CONFIG_VALUE_0=${GIT_GPG_KEY}
       - GIT_CONFIG_KEY_1=commit.gpgsign
       - GIT_CONFIG_VALUE_1=${GIT_GPG_SIGN:-false}
-
-    secrets:
-      - source: github_token
-        target: ${SECRET_TARGET_PATH:-/run/secrets/gh_default}
 
     volumes:
       - workspace:/workspace
@@ -45,6 +41,9 @@ services:
     networks:
       - pi_network
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     restart: "no"
 
 volumes:
@@ -60,12 +59,8 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${PWD}/workspace
+      device: ${PWD}
 
 networks:
   pi_network:
     driver: bridge
-
-secrets:
-  github_token:
-    file: ${PWD}/.secrets/github_token.txt

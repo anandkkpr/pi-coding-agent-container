@@ -18,6 +18,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
+# Download and install Zola.
+# -----------------------------------------------------------------------------
+RUN cd /tmp
+RUN wget https://github.com/barnumbirr/zola-debian/releases/download/v0.22.1-1/zola_0.22.1-1_amd64_trixie.deb
+RUN dpkg -i zola_0.22.1-1_amd64_trixie.deb
+
+# -----------------------------------------------------------------------------
 # System Hardening: Purge Privilege Escalation Vectors
 # -----------------------------------------------------------------------------
 RUN rm -f /bin/su /usr/bin/su /bin/mount /usr/bin/mount /bin/umount /usr/bin/umount \
@@ -65,6 +72,8 @@ ENV NODE_OPTIONS="--require /usr/local/lib/app-firewall.js"
 FROM base AS release
 
 RUN npm install -g @mariozechner/pi-coding-agent
+RUN pi install git:github.com/tmdgusya/pi-engineering-discipline-extension
+RUN pi install npm:pi-subagents
 
 RUN mkdir -p /home/node/.pi/agent \
     /workspace \
@@ -83,5 +92,5 @@ USER node
 RUN git config --global credential.https://github.com.helper "" && \
     git config --global credential.https://github.com.helper "!/usr/bin/gh auth git-credential"
 
-ENTRYPOINT ["pi"]
-CMD []
+ENTRYPOINT ["/bin/bash"]
+CMD ["pi"]
